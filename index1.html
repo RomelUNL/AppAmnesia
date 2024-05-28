@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Qué Quieres Recordar?</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        #main-header {
+            background-color: #333;
+            color: #07d1d8;
+            text-align: center;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #77d4d4 3px solid;
+        }
+        #main-header h1 {
+            margin: 0;
+            padding-bottom: 10px;
+        }
+        .screen {
+            display: none;
+        }
+        .screen.active {
+            display: block;
+        }
+        .welcome-grid {
+            display: flex;
+            flex-wrap: wrap;
+            height: 80vh;
+        }
+        .welcome-grid div {
+            flex: 1 1 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgb(255, 255, 255);
+            font-size: 20px;
+            cursor: pointer;
+            height: 50vh;
+            box-sizing: border-box;
+            padding: 10px;
+            text-align: center;
+        }
+        .urgente { background-color: red; }
+        .important { background-color: rgb(177, 177, 0); color: rgb(0, 0, 0); }
+        .memorize { background-color: green; }
+        .tomorrow { background-color: blue; }
+        .options {
+            text-align: center;
+            margin-top: 50px;
+        }
+        .options button {
+            margin: 10px;
+            padding: 20px;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+        }
+        .back-button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        .reminder {
+            background: #fff;
+            color: #333;
+            margin: 15px 0;
+            padding: 20px;
+            border-left: 10px solid;
+        }
+        .reminder.urgente { border-color: red; }
+        .reminder.important { border-color: yellow; }
+        .reminder.memorize { border-color: green; }
+        .reminder.tomorrow { border-color: blue; }
+    </style>
+</head>
+<body>
+    <header id="main-header">
+        <div class="container">
+            <h1>¿Qué Quieres Recordar?</h1>
+        </div>
+    </header>
+
+    <!-- Pantalla de bienvenida -->
+    <div class="container screen active" id="welcome-screen">
+        <div class="welcome-grid">
+            <div class="urgente" onclick="showOptions('urgente')">Urgente (Rojo)</div>
+            <div class="important" onclick="showOptions('important')">Importante (Amarillo)</div>
+            <div class="memorize" onclick="showOptions('memorize')">Memoriza algo (Verde)</div>
+            <div class="tomorrow" onclick="showOptions('tomorrow')">Para Mañana (Azul)</div>
+        </div>
+    </div>
+
+    <!-- Sección de opciones -->
+    <div class="container screen" id="option-screen">
+        <div class="options">
+            <h2 id="option-title"></h2>
+            <button onclick="addOption('image')">Tomar Imagen</button>
+            <button onclick="addOption('audio')">Grabar Audio</button>
+            <button onclick="addOption('text')">Escribir Algo</button>
+            <div id="extra-options"></div>
+            <button class="back-button" onclick="goBack()">Regresar</button>
+        </div>
+    </div>
+
+<script>
+    // Explicaciones para cada opción
+    const optionDescriptions = {
+        image: "Utiliza esta opción para capturar una imagen como parte de tu recordatorio.",
+        audio: "Utiliza esta opción para grabar un mensaje de audio relacionado con tu recordatorio.",
+        text: "Utiliza esta opción para escribir notas o detalles adicionales sobre tu recordatorio."
+    };
+
+    function showOptions(type) {
+        document.getElementById('welcome-screen').classList.remove('active');
+        document.getElementById('option-screen').classList.add('active');
+
+        const title = type.charAt(0).toUpperCase() + type.slice(1);
+        document.getElementById('option-title').textContent = `Opciones para ${title}`;
+
+        const extraOptions = document.getElementById('extra-options');
+        extraOptions.innerHTML = '';
+
+        if (type === 'tomorrow') {
+            extraOptions.innerHTML += '<br><input type="datetime-local" id="reminder-date">';
+        }
+
+        // Mostrar la descripción de la opción seleccionada
+        const description = optionDescriptions[type];
+        if (description) {
+            document.getElementById('description-text').textContent = description;
+            document.getElementById('option-description').style.display = 'block';
+        } else {
+            document.getElementById('option-description').style.display = 'none';
+        }
+    }
+</script>
+    
+    <!-- Sección de recordatorios -->
+    <div class="container screen" id="reminder-section">
+        <form id="reminder-form">
+            <input type="text" id="title" placeholder="Título del recordatorio" required>
+            <input type="text" id="description" placeholder="Descripción" required>
+            <select id="color" required>
+                <option value="" disabled selected>Selecciona un tipo</option>
+                <option value="urgente">Urgente</option>
+                <option value="important">Importante</option>
+                <option value="memorize">Memoriza algo</option>
+                <option value="tomorrow">Para Mañana</option>
+            </select>
+            <button type="button" onclick="addReminder()">Agregar Recordatorio</button>
+        </form>
+        <div id="reminders">
+            <!-- Aquí aparecerán los recordatorios -->
+        </div>
+    </div>
+
+    <script>
+        function showOptions(type) {
+            document.getElementById('welcome-screen').classList.remove('active');
+            document.getElementById('option-screen').classList.add('active');
+            
+            const title = type.charAt(0).toUpperCase() + type.slice(1);
+            document.getElementById('option-title').textContent = `Opciones para ${title}`;
+            
+            const extraOptions = document.getElementById('extra-options');
+            extraOptions.innerHTML = '';
+            
+            if (type === 'tomorrow') {
+                extraOptions.innerHTML += '<br><input type="datetime-local" id="reminder-date">';
+            }
+        }
+
+        function addOption(option) {
+            // Aquí podrías manejar la lógica para tomar una imagen, grabar audio o escribir algo
+            alert(`Función para agregar ${option} aún no implementada`);
+        }
+
+        function goBack() {
+            document.getElementById('option-screen').classList.remove('active');
+            document.getElementById('welcome-screen').classList.add('active');
+        }
+
+        function addReminder() {
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const color = document.getElementById('color').value;
+            
+            if (title === '' || description === '' || color === '') {
+                alert('Por favor, complete todos los campos.');
+                return;
+            }
+
+            const reminderDiv = document.createElement('div');
+            reminderDiv.className = `reminder ${color}`;
+            
+            const reminderTitle = document.createElement('h2');
+            reminderTitle.textContent = title;
+            
+            const reminderDescription = document.createElement('p');
+            reminderDescription.textContent = description;
+            
+            reminderDiv.appendChild(reminderTitle);
+            reminderDiv.appendChild(reminderDescription);
+            
+            document.getElementById('reminders').appendChild(reminderDiv);
+            
+            document.getElementById('reminder-form').reset();
+        }
+    </script>
+</body>
+</html>
